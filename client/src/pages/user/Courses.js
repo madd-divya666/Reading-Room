@@ -1,82 +1,121 @@
 import React, { useState, useEffect } from "react";
-import UserMenu from "../../components/Layout/UserMenu";
 import Layout from "../../components/Layout/Layout";
 import axios from "axios";
 import { useAuth } from "../../context/auth";
-import moment from "moment";
-import { useNavigate } from "react-router-dom";
-import Mylearningmenu from "../../components/Layout/Mylearningmenu";
-import { Navigate } from "react-router-dom";
 
 const Courses = () => {
-    const [orders, setOrders] = useState([]);
-    const [auth, setAuth] = useAuth();
-    const navigate = useNavigate();
-    const getOrders = async () => {
-        try {
-            const { data } = await axios.get("https://the-reading-room-3z29.onrender.com/api/v1/auth/orders");
-            setOrders(data);
-        } catch (error) {
-            console.log(error);
-        }
-    };
+  const [orders, setOrders] = useState([]);
+  const [auth] = useAuth();
 
-    useEffect(() => {
-        if (auth?.token) getOrders();
-    }, [auth?.token]);
-    return (
-        <Layout title={"Your Orders"}>
-            <div className="container-fluid p-3 m-3 dashboard">
-                <div className="row">
+  const getOrders = async () => {
+    try {
+      const { data } = await axios.get(
+        "http://localhost:4900/api/v1/auth/orders"
+      );
+      setOrders(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-                    <div className="indexing">
-                        <p>Video Lectures</p>
-                        <p>Lecture Notes</p>
-                    </div>
+  useEffect(() => {
+    if (auth?.token) getOrders();
+  }, [auth?.token]);
 
-                    {orders?.map((o, i) => {
-                        return (
+  return (
+    <Layout title="My Learning">
+      {/* PAGE BACKGROUND */}
+      <div
+        className="container-fluid py-4"
+        style={{ backgroundColor: "#F1F5F9", minHeight: "100vh" }}
+      >
+        <div className="container">
+          {/* PAGE HEADER */}
+          <div className="mb-4">
+            <h3 className="fw-bold" style={{ color: "#0F172A" }}>
+              My Learning
+            </h3>
+            <p style={{ color: "#64748B" }}>
+              Access your purchased courses, lectures, and study materials
+            </p>
+          </div>
 
-                            <div className="container">
-                                {/* {o?.products?.filter((p, i) => !p.content2)?.length || <div>  </div>} */}
-                                {o?.products?.filter((p, i) => p.content2)?.map((p, i) => (
-                                    <div className="row mb-2 p-3 card flex-row" key={p._id}>
-                                        <div className="col-md-8">
-                                            <embed
-                                                src={`https://the-reading-room-3z29.onrender.com/api/v1/product/product-content2/${p._id}`}
-                                                className="card-img-top"
-                                                alt={p.name}
-                                                width={"400px"}
-                                                height={"400px"}
-
-                                            />
-                                            <p className="studymaterial-name">{p.name}</p>
-                                            <p className="studymaterial-desc">{p.description}</p>
-                                            <button className="btn-manual btn-opem-in-new-tab">
-                                                <a href={`https://the-reading-room-3z29.onrender.com/api/v1/product/product-content2/${p._id}`} target="_blank">Open in new Tab</a>
-                                            </button>
-                                        </div>
-                                        <div className="col-md-4">
-                                            <embed
-                                                src={`https://the-reading-room-3z29.onrender.com/api/v1/product/product-content1/${p._id}`}
-                                                className="card-img-top"
-                                                alt={p.name}
-                                                width={"400px"}
-                                                height={"400px"}
-
-                                            />
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                        );
-                    })}
-                </div>
+          {/* CONTENT */}
+          {orders?.length === 0 && (
+            <div
+              className="card border-0 shadow-sm p-4 text-center"
+              style={{ backgroundColor: "#FFFFFF" }}
+            >
+              <p className="mb-0" style={{ color: "#64748B" }}>
+                You have not purchased any courses yet.
+              </p>
             </div>
+          )}
 
-        </Layout >
-    );
+          {orders?.map((order) =>
+            order?.products
+              ?.filter((p) => p.content2)
+              ?.map((p) => (
+                <div
+                  className="card border-0 shadow-sm mb-4"
+                  key={p._id}
+                  style={{ backgroundColor: "#FFFFFF" }}
+                >
+                  <div className="card-body">
+                    <div className="row g-4">
+                      {/* VIDEO / MAIN CONTENT */}
+                      <div className="col-md-8">
+                        <h5
+                          className="fw-semibold mb-2"
+                          style={{ color: "#0F172A" }}
+                        >
+                          {p.name}
+                        </h5>
+                        <p style={{ color: "#64748B" }}>{p.description}</p>
+
+                        <div className="ratio ratio-16x9 mb-3">
+                          <embed
+                            src={`http://localhost:4900/api/v1/product/product-content2/${p._id}`}
+                            type="application/pdf"
+                          />
+                        </div>
+
+                        <a
+                          href={`http://localhost:4900/api/v1/product/product-content2/${p._id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="btn btn-sm text-white"
+                          style={{ backgroundColor: "#1E40AF" }}
+                        >
+                          Open Lecture in New Tab
+                        </a>
+                      </div>
+
+                      {/* NOTES / PDF */}
+                      <div className="col-md-4">
+                        <p
+                          className="fw-semibold mb-2"
+                          style={{ color: "#0F172A" }}
+                        >
+                          Lecture Notes
+                        </p>
+
+                        <div className="ratio ratio-1x1 border">
+                          <embed
+                            src={`http://localhost:4900/api/v1/product/product-content1/${p._id}`}
+                            type="application/pdf"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+          )}
+        </div>
+      </div>
+    </Layout>
+  );
 };
 
 export default Courses;

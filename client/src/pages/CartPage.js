@@ -4,231 +4,177 @@ import { useCart } from "../context/cart";
 import { useAuth } from "../context/auth";
 import { useNavigate } from "react-router-dom";
 import DropIn from "braintree-web-drop-in-react";
-import { AiFillWarning } from "react-icons/ai";
 import axios from "axios";
 import toast from "react-hot-toast";
-import "../styles/CartStyles.css";
-import { get } from "mongoose";
-import { BiPieChartAlt2 } from "react-icons/bi";
-
 
 const CartPage = () => {
-  const [products2, setProducts2] = useState([]);
-  const [auth, setAuth] = useAuth();
+  const [auth] = useAuth();
   const [cart, setCart] = useCart();
-  const [cart2, setCart2] = useState([]);
   const [clientToken, setClientToken] = useState("");
-  const [instance, setInstance] = useState("");
+  const [instance, setInstance] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-
-  //getall products
-  // const getAllProducts = async () => {
-  //   try {
-  //     const res = await axios.get("https://the-reading-room-3z29.onrender.com/api/v1/product/get-product");
-  //     // setProducts2(data2.products);
-  //     // console.log(products2);
-  //     console.log(res.data.products);
-  //     setProducts2(res.data.products);
-  //     console.log(products2);
-  //     // setProducts2((products2) => [...data.products]);
-  //     console.log(products2);
-  //     products2?.forEach((p) => {
-  //       cart?.forEach((c) => {
-  //         console.log(p._id);
-  //         console.log(c);
-  //         if (p._id === c) {
-  //           console.log(77);
-  //           setCart2([...cart2, p]);
-  //         }
-  //       });
-  //     });
-  //   } catch (error) {
-  //     console.log(error);
-  //     toast.error("Someething Went Wrong");
-  //   }
-  // }
-
-  // //lifecycle method
-  // useEffect(() => {
-  //   getAllProducts();
-  // }, []);
-
-  // getall products
-
-
-  // getAllProducts();
-  //total price
+  // total price
   const totalPrice = () => {
-    try {
-      let total = 0;
-      cart?.map((item) => {
-        total = total + item.price;
-      });
-      return total.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  //detele item
-  const removeCartItem = (pid) => {
-    try {
-      // let myCart = [...cart2];
-      // let index = myCart.findIndex((item) => item._id === pid);
-      // myCart.splice(index, 1);
-      // setCart2(myCart);
-      let myCart1 = [...cart];
-      let index1 = myCart1.findIndex((item) => item._id === pid);
-      myCart1.splice(index1, 1);
-      setCart(myCart1);
-      localStorage.setItem("cart", JSON.stringify(myCart1));
-    } catch (error) {
-      console.log(error);
-    }
+    let total = 0;
+    cart?.forEach((item) => (total += item.price));
+    return total.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
   };
 
-  //get payment gateway token
+  // remove item
+  const removeCartItem = (pid) => {
+    const updatedCart = cart.filter((item) => item._id !== pid);
+    setCart(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+  };
+
+  // get payment token
   const getToken = async () => {
     try {
-      const { data } = await axios.get("https://the-reading-room-3z29.onrender.com/api/v1/product/braintree/token");
+      const { data } = await axios.get(
+        "http://localhost:4900/api/v1/product/braintree/token"
+      );
       setClientToken(data?.clientToken);
     } catch (error) {
       console.log(error);
     }
   };
+
   useEffect(() => {
-
-    getToken();
-
-
+    if (auth?.token) getToken();
   }, [auth?.token]);
 
-
-  //handle payments
+  // handle payment
   const handlePayment = async () => {
     try {
       setLoading(true);
       const { nonce } = await instance.requestPaymentMethod();
-      const { data } = await axios.post("https://the-reading-room-3z29.onrender.com/api/v1/product/braintree/payment", {
-        nonce,
-        cart,
-      });
+      await axios.post(
+        "http://localhost:4900/api/v1/product/braintree/payment",
+        { nonce, cart }
+      );
       setLoading(false);
       localStorage.removeItem("cart");
       setCart([]);
       navigate("/dashboard/user/orders2");
-      toast.success("Payment Completed Successfully ");
+      toast.success("Payment completed successfully");
     } catch (error) {
-      console.log(error);
       setLoading(false);
+      toast.error("Payment failed");
     }
   };
+
   return (
-    <Layout>
-      <div className=" cart-page">
-        <div className="row">
-          <div className="col-md-12">
-            <h1 className="text-center bg-danger p-2 mb-1">
-              {!auth?.user
-                ? "Hello Guest"
-                : `Hello  ${auth?.token && auth?.user?.name}`}
-              <p className="text-center">
-                {cart?.length
-                  ? `You Have ${cart.length} items in your cart ${auth?.token ? "" : "please login to checkout !"
-                  }`
-                  : " Your Cart Is Empty"}
-              </p>
-            </h1>
+    <Layout title="Your Cart">
+      {/* PAGE BG */}
+      <div
+        className="container-fluid py-4"
+        style={{ backgroundColor: "#F1F5F9", minHeight: "100vh" }}
+      >
+        <div className="container">
+          {/* HEADER */}
+          <div className="mb-4 text-center">
+            <h3 className="fw-bold">Shopping Cart</h3>
+            <p className="text-muted">
+              {cart.length
+                ? `You have ${cart.length} item(s) in your cart`
+                : "Your cart is empty"}
+            </p>
           </div>
-        </div>
-        <div className="container ">
-          <div className="row ">
-            <div className="col-md-7  p-0 m-0">
-              {cart?.map((p) => (
-                <div className="row card flex-row" key={p._id}>
-                  <div className="col-md-4">
-                    <img
-                      src={`https://the-reading-room-3z29.onrender.com/api/v1/product/product-photo/${p._id}`}
-                      className="card-img-top"
-                      alt={p.name}
-                      width="100%"
-                      height={"100px"}
-                    />
-                  </div>
-                  <div className="col-md-4">
-                    <p>{p.name}</p>
-                    <p>{p.description}</p>
-                    <p>Price : {p.price}</p>
-                  </div>
-                  <div className="col-md-4 cart-remove-btn">
-                    <button
-                      className="btn btn-danger"
-                      onClick={() => removeCartItem(p._id)}
-                    >
-                      Remove
-                    </button>
+
+          <div className="row">
+            {/* CART ITEMS */}
+            <div className="col-md-7">
+              {cart.length === 0 && (
+                <div className="card border-0 shadow-sm p-4 text-center">
+                  <p className="text-muted mb-0">
+                    Add courses or materials to continue
+                  </p>
+                </div>
+              )}
+
+              {cart.map((p) => (
+                <div key={p._id} className="card border-0 shadow-sm mb-3">
+                  <div className="card-body">
+                    <div className="row align-items-center">
+                      <div className="col-md-3">
+                        <img
+                          src={`http://localhost:4900/api/v1/product/product-photo/${p._id}`}
+                          alt={p.name}
+                          className="img-fluid rounded"
+                        />
+                      </div>
+
+                      <div className="col-md-6">
+                        <h6 className="fw-semibold mb-1">{p.name}</h6>
+                        <p className="text-muted small mb-1">{p.description}</p>
+                        <p className="fw-semibold mb-0">₹ {p.price}</p>
+                      </div>
+
+                      <div className="col-md-3 text-md-end">
+                        <button
+                          className="btn btn-outline-danger btn-sm"
+                          onClick={() => removeCartItem(p._id)}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="col-md-5 cart-summary ">
-              <h2>Wishlist Summary</h2>
-              <p>Total | Checkout | Payment</p>
-              <hr />
-              <h4>Total : {totalPrice()} </h4>
-              {auth?.user?.address ? (
-                <>
 
-                </>
-              ) : (
-                <div className="mb-3">
-                  {auth?.token ? (
-                    <h1>Study Hard</h1>
-                  ) : (
+            {/* SUMMARY & PAYMENT */}
+            <div className="col-md-5">
+              <div className="card border-0 shadow-sm">
+                <div className="card-body">
+                  <h5 className="fw-bold mb-3">Order Summary</h5>
+
+                  <p className="d-flex justify-content-between">
+                    <span>Total</span>
+                    <span className="fw-semibold">{totalPrice()}</span>
+                  </p>
+
+                  <hr />
+
+                  {!auth?.token && (
                     <button
-                      className="btn btn-outline-warning"
-                      onClick={() =>
-                        navigate("/login", {
-                          state: "/cart",
-                        })
-                      }
+                      className="btn btn-outline-primary w-100 mb-3"
+                      onClick={() => navigate("/login", { state: "/cart" })}
                     >
-                      Plase Login to checkout
+                      Login to Checkout
                     </button>
                   )}
-                </div>
-              )}
-              <div className="mt-2">
-                {!clientToken || !auth?.token || !cart?.length ? (
-                  " "
-                ) : (
-                  <>
-                    <DropIn
-                      options={{
-                        authorization: clientToken,
-                        paypal: {
-                          flow: "vault",
-                        },
-                      }}
-                      onInstance={(instance) => setInstance(instance)}
-                    />
 
-                    <button
-                      className="btn btn-primary"
-                      onClick={handlePayment}
-                      disabled={loading || !instance || !auth?.user?.address}
-                    >
-                      {loading ? "Processing ...." : "Make Payment"}
-                    </button>
-                  </>
-                )
-                }
+                  {clientToken && auth?.token && cart.length > 0 && (
+                    <>
+                      <DropIn
+                        options={{
+                          authorization: clientToken,
+                          paypal: { flow: "vault" },
+                        }}
+                        onInstance={(instance) => setInstance(instance)}
+                      />
+
+                      <button
+                        className="btn text-white w-100 mt-3"
+                        style={{ backgroundColor: "#1E40AF" }}
+                        onClick={handlePayment}
+                        disabled={loading || !instance}
+                      >
+                        {loading ? "Processing..." : "Make Payment"}
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
+            {/* END */}
           </div>
         </div>
       </div>

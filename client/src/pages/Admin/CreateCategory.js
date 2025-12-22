@@ -5,41 +5,41 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import CategoryForm from "../../components/Form/CategoryForm";
 import { Modal } from "antd";
+
 const CreateCategory = () => {
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState("");
   const [visible, setVisible] = useState(false);
   const [selected, setSelected] = useState(null);
   const [updatedName, setUpdatedName] = useState("");
-  //handle Form
+
+  // CREATE
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post("https://the-reading-room-3z29.onrender.com/api/v1/category/create-category", {
-        name,
-      });
+      const { data } = await axios.post(
+        "http://localhost:4900/api/v1/category/create-category",
+        { name }
+      );
       if (data?.success) {
-        toast.success(`${name} is created`);
+        toast.success(`${name} created`);
+        setName("");
         getAllCategory();
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      console.log(error);
-      // toast.error("somthing went wrong in input form");
+      } else toast.error(data.message);
+    } catch {
+      toast.error("Something went wrong");
     }
   };
 
-  //get all cat
+  // GET ALL
   const getAllCategory = async () => {
     try {
-      const { data } = await axios.get("https://the-reading-room-3z29.onrender.com/api/v1/category/get-category");
-      if (data?.success) {
-        setCategories(data?.category);
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error("Something wwent wrong in getting catgeory");
+      const { data } = await axios.get(
+        "http://localhost:4900/api/v1/category/get-category"
+      );
+      if (data?.success) setCategories(data.category);
+    } catch {
+      toast.error("Failed to load categories");
     }
   };
 
@@ -47,112 +47,127 @@ const CreateCategory = () => {
     getAllCategory();
   }, []);
 
-  //update category
+  // UPDATE
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
       const { data } = await axios.put(
-        `https://the-reading-room-3z29.onrender.com/api/v1/category/update-category/${selected._id}`,
+        `http://localhost:4900/api/v1/category/update-category/${selected._id}`,
         { name: updatedName }
       );
       if (data?.success) {
-        toast.success(`${updatedName} is updated`);
+        toast.success("Category updated");
+        setVisible(false);
         setSelected(null);
         setUpdatedName("");
-        setVisible(false);
         getAllCategory();
-      } else {
-        toast.error(data.message);
       }
-    } catch (error) {
-      console.log(error);
+    } catch {
+      toast.error("Update failed");
     }
   };
-  //delete category
-  const handleDelete = async (pId) => {
+
+  // DELETE
+  const handleDelete = async (id) => {
     try {
       const { data } = await axios.delete(
-        `https://the-reading-room-3z29.onrender.com/api/v1/category/delete-category/${pId}`
+        `http://localhost:4900/api/v1/category/delete-category/${id}`
       );
-      if (data.success) {
-        toast.success(`category is deleted`);
-
+      if (data?.success) {
+        toast.success("Category deleted");
         getAllCategory();
-      } else {
-        toast.error(data.message);
       }
-    } catch (error) {
-      toast.error("Somtihing went wrong");
+    } catch {
+      toast.error("Delete failed");
     }
   };
+
   return (
-    <Layout title={"Dashboard - Create Category"}>
-      <div className="container-fluid m-3 p-3 dashboard">
-        <div className="row">
-          <div className="col-md-3">
-            <AdminMenu />
-          </div>
-          <div className="col-md-9">
-            <h1>Manage Category</h1>
-            <div className="p-3 w-50">
-              <CategoryForm
-                handleSubmit={handleSubmit}
-                value={name}
-                setValue={setName}
-              />
+    <Layout title="Manage Categories • The Reading Room">
+      <div className="container-fluid py-5">
+        <div className="container">
+          <div className="row g-4">
+            {/* SIDEBAR */}
+            <div className="col-lg-3">
+              <div className="bg-white rounded-4 shadow-sm p-3">
+                <AdminMenu />
+              </div>
             </div>
-            <div className="w-75">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {categories?.map((c) => (
-                    <>
+
+            {/* MAIN */}
+            <div className="col-lg-9">
+              <div className="bg-white rounded-4 shadow-sm p-4">
+                <h4 className="fw-bold mb-4" style={{ color: "#1E40AF" }}>
+                  Manage Categories
+                </h4>
+
+                {/* CREATE FORM */}
+                <div className="mb-4">
+                  <CategoryForm
+                    handleSubmit={handleSubmit}
+                    value={name}
+                    setValue={setName}
+                  />
+                </div>
+
+                {/* TABLE */}
+                <div className="table-responsive">
+                  <table className="table align-middle">
+                    <thead className="table-light">
                       <tr>
-                        <td key={c._id}>{c.name}</td>
-                        <td>
-                          <button
-                            className="btn btn-primary ms-2"
-                            onClick={() => {
-                              setVisible(true);
-                              setUpdatedName(c.name);
-                              setSelected(c);
-                            }}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="btn btn-danger ms-2"
-                            onClick={() => {
-                              handleDelete(c._id);
-                            }}
-                          >
-                            Delete
-                          </button>
-                        </td>
+                        <th>Name</th>
+                        <th style={{ width: "200px" }}>Actions</th>
                       </tr>
-                    </>
-                  ))}
-                </tbody>
-              </table>
+                    </thead>
+                    <tbody>
+                      {categories.map((c) => (
+                        <tr key={c._id}>
+                          <td className="fw-semibold">{c.name}</td>
+                          <td>
+                            <button
+                              className="btn btn-sm text-white me-2"
+                              style={{
+                                background:
+                                  "linear-gradient(135deg,#1E40AF,#2563EB)",
+                              }}
+                              onClick={() => {
+                                setVisible(true);
+                                setSelected(c);
+                                setUpdatedName(c.name);
+                              }}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="btn btn-sm btn-danger"
+                              onClick={() => handleDelete(c._id)}
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
-            <Modal
-              onCancel={() => setVisible(false)}
-              footer={null}
-              visible={visible}
-            >
-              <CategoryForm
-                value={updatedName}
-                setValue={setUpdatedName}
-                handleSubmit={handleUpdate}
-              />
-            </Modal>
           </div>
         </div>
+
+        {/* MODAL */}
+        <Modal
+          open={visible}
+          onCancel={() => setVisible(false)}
+          footer={null}
+          title="Update Category"
+        >
+          <CategoryForm
+            handleSubmit={handleUpdate}
+            value={updatedName}
+            setValue={setUpdatedName}
+          />
+        </Modal>
       </div>
     </Layout>
   );

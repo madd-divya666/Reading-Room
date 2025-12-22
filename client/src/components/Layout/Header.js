@@ -7,151 +7,190 @@ import useCategory from "../../hooks/useCategory";
 import { useCart } from "../../context/cart";
 import { Badge } from "antd";
 import { BsFillJournalBookmarkFill } from "react-icons/bs";
-import "../../App.css"
+
 const Header = () => {
   const [auth, setAuth] = useAuth();
   const [cart] = useCart();
   const categories = useCategory();
+
   const handleLogout = () => {
-    setAuth({
-      ...auth,
-      user: null,
-      token: "",
-    });
+    setAuth({ user: null, token: "" });
     localStorage.removeItem("auth");
     toast.success("Logout Successfully");
   };
+
+  const navLinkStyle = {
+    color: "#FFFFFF",
+    fontSize: "15px",
+    fontWeight: 500,
+    padding: "6px 12px",
+  };
+
   return (
-    <>
-      <nav className="navbar navbar-expand-lg bg-body-tertiary fixed-top header">
-        <div className="container-fluid">
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarTogglerDemo01"
-            aria-controls="navbarTogglerDemo01"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span className="navbar-toggler-icon" />
-          </button>
-          <div className="collapse navbar-collapse" id="navbarTogglerDemo01">
-            <BsFillJournalBookmarkFill className="navbar-brand navbar-brand-icon" />
-            <Link to="/" className="navbar-brand">
-              THE READING ROOM
-            </Link>
-            <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
-              <SearchInput />
-              <li className="nav-item">
-                <NavLink to="/" className="nav-link ">
-                  Home
-                </NavLink>
-              </li>
-              <li className="nav-item">
-                <NavLink
-                  to={`/dashboard/${auth?.user?.role === 1 ? "admin" : "user"
-                    }/orders2`}
-                  className="nav-link "
-                >
-                  My Learning
-                </NavLink>
-              </li>
-              <li className="nav-item">
-                <NavLink
-                  to={`/quiz`}
-                  className="nav-link "
-                >
-                  LIVE Quiz
-                </NavLink>
-              </li>
-              <li className="nav-item dropdown">
-                <Link
-                  className="nav-link dropdown-toggle"
-                  to={"/categories"}
-                  data-bs-toggle="dropdown"
-                >
-                  Categories
-                </Link>
-                <ul className="dropdown-menu">
-                  <li>
-                    <Link className="dropdown-item" to={"/categories"}>
-                      All Categories
+    <nav
+      className="navbar navbar-expand-lg fixed-top"
+      style={{
+        background:
+          "linear-gradient(135deg, #1E40AE 0%, #2563EB 50%, #60A5FA 100%)",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+      }}
+    >
+      <div className="container-fluid px-4">
+        {/* TOGGLER */}
+        <button
+          className="navbar-toggler border-0"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarToggler"
+        >
+          <span className="navbar-toggler-icon" />
+        </button>
+
+        {/* BRAND */}
+        <Link
+          to="/"
+          className="navbar-brand d-flex align-items-center gap-2"
+          style={{ color: "#fff", fontWeight: 700 }}
+        >
+          <BsFillJournalBookmarkFill size={22} />
+          THE READING ROOM
+        </Link>
+
+        {/* NAV */}
+        <div className="collapse navbar-collapse" id="navbarToggler">
+          <ul className="navbar-nav ms-auto align-items-center gap-1">
+            <SearchInput />
+
+            <li className="nav-item">
+              <NavLink to="/" className="nav-link" style={navLinkStyle}>
+                Home
+              </NavLink>
+            </li>
+
+            <li className="nav-item">
+              <NavLink
+                to={`/dashboard/${
+                  auth?.user?.role === 1 ? "admin" : "user"
+                }/orders2`}
+                className="nav-link"
+                style={navLinkStyle}
+              >
+                My Learning
+              </NavLink>
+            </li>
+
+            <li className="nav-item">
+              <NavLink to="/quiz" className="nav-link" style={navLinkStyle}>
+                Live Quiz
+              </NavLink>
+            </li>
+
+            {/* CATEGORIES */}
+            <li className="nav-item dropdown">
+              <span
+                className="nav-link dropdown-toggle"
+                style={{ ...navLinkStyle, cursor: "pointer" }}
+                data-bs-toggle="dropdown"
+              >
+                Categories
+              </span>
+              <ul className="dropdown-menu shadow border-0 rounded-3">
+                <li>
+                  <Link className="dropdown-item" to="/categories">
+                    All Categories
+                  </Link>
+                </li>
+                {categories?.map((c) => (
+                  <li key={`${c._id}-${c.name}`}>
+                    <Link className="dropdown-item" to={`/category/${c.slug}`}>
+                      {c.name}
                     </Link>
                   </li>
-                  {categories?.map((c) => (
-                    <li>
-                      <Link
-                        className="dropdown-item"
-                        to={`/category/${c.slug}`}
-                      >
-                        {c.name}
-                      </Link>
-                    </li>
-                  ))}
+                ))}
+              </ul>
+            </li>
+
+            {/* AUTH */}
+            {!auth?.user ? (
+              <>
+                <li className="nav-item">
+                  <NavLink
+                    to="/register"
+                    className="nav-link"
+                    style={navLinkStyle}
+                  >
+                    Register
+                  </NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink
+                    to="/login"
+                    className="nav-link"
+                    style={navLinkStyle}
+                  >
+                    Login
+                  </NavLink>
+                </li>
+              </>
+            ) : (
+              <li className="nav-item dropdown">
+                <span
+                  className="nav-link dropdown-toggle"
+                  style={{ ...navLinkStyle, cursor: "pointer" }}
+                  data-bs-toggle="dropdown"
+                >
+                  {auth.user.name}
+                </span>
+                <ul className="dropdown-menu shadow border-0 rounded-3">
+                  <li>
+                    <NavLink
+                      className="dropdown-item"
+                      to={`/dashboard/${
+                        auth.user.role === 1 ? "admin" : "user"
+                      }`}
+                    >
+                      Dashboard
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      onClick={handleLogout}
+                      className="dropdown-item"
+                      to="/login"
+                    >
+                      Logout
+                    </NavLink>
+                  </li>
                 </ul>
               </li>
+            )}
 
-              {!auth?.user ? (
-                <>
-                  <li className="nav-item">
-                    <NavLink to="/register" className="nav-link">
-                      Register
-                    </NavLink>
-                  </li>
-                  <li className="nav-item">
-                    <NavLink to="/login" className="nav-link">
-                      Login
-                    </NavLink>
-                  </li>
-                </>
-              ) : (
-                <>
-                  <li className="nav-item dropdown">
-                    <NavLink
-                      className="nav-link dropdown-toggle"
-                      href="#"
-                      role="button"
-                      data-bs-toggle="dropdown"
-                      style={{ border: "none" }}
-                    >
-                      {auth?.user?.name}
-                    </NavLink>
-                    <ul className="dropdown-menu">
-                      <li>
-                        <NavLink
-                          to={`/dashboard/${auth?.user?.role === 1 ? "admin" : "user"
-                            }`}
-                          className="dropdown-item"
-                        >
-                          Dashboard
-                        </NavLink>
-                      </li>
-                      <li>
-                        <NavLink
-                          onClick={handleLogout}
-                          to="/login"
-                          className="dropdown-item"
-                        >
-                          Logout
-                        </NavLink>
-                      </li>
-                    </ul>
-                  </li>
-                </>
-              )}
-              <li className="nav-item">
-                <NavLink to="/cart" className="nav-link">
-                  <Badge count={cart?.length} showZero offset={[10, -5]} className="nav-link-cart">
+            {/* WISHLIST */}
+            <li className="nav-item">
+              <NavLink
+                to="/cart"
+                className="nav-link d-flex align-items-center gap-1"
+                style={navLinkStyle}
+              >
+                <Badge
+                  count={cart?.length}
+                  showZero
+                  offset={[6, -4]}
+                  style={{
+                    backgroundColor: "#1E40AE",
+                    fontSize: "12px",
+                  }}
+                >
+                  <span style={{ fontSize: "15px", color: "#fff" }}>
                     Wishlist
-                  </Badge>
-                </NavLink>
-              </li>
-            </ul>
-          </div>
+                  </span>
+                </Badge>
+              </NavLink>
+            </li>
+          </ul>
         </div>
-      </nav>
-    </>
+      </div>
+    </nav>
   );
 };
 

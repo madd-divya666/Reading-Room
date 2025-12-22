@@ -2,23 +2,25 @@ import React, { useState, useEffect } from "react";
 import Layout from "./../components/Layout/Layout";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
-import "../styles/ProductDetailsStyles.css";
+import { useCart } from "../context/cart";
+import toast from "react-hot-toast";
 
 const ProductDetails = () => {
   const params = useParams();
   const navigate = useNavigate();
+  const [cart, setCart] = useCart();
+
   const [product, setProduct] = useState({});
   const [relatedProducts, setRelatedProducts] = useState([]);
 
-  //initalp details
   useEffect(() => {
     if (params?.slug) getProduct();
   }, [params?.slug]);
-  //getProduct
+
   const getProduct = async () => {
     try {
       const { data } = await axios.get(
-        `https://the-reading-room-3z29.onrender.com/api/v1/product/get-product/${params.slug}`
+        `http://localhost:4900/api/v1/product/get-product/${params.slug}`
       );
       setProduct(data?.product);
       getSimilarProduct(data?.product._id, data?.product.category._id);
@@ -26,96 +28,135 @@ const ProductDetails = () => {
       console.log(error);
     }
   };
-  //get similar product
+
   const getSimilarProduct = async (pid, cid) => {
     try {
       const { data } = await axios.get(
-        `https://the-reading-room-3z29.onrender.com/api/v1/product/related-product/${pid}/${cid}`
+        `http://localhost:4900/api/v1/product/related-product/${pid}/${cid}`
       );
       setRelatedProducts(data?.products);
     } catch (error) {
       console.log(error);
     }
   };
+
   return (
-    <Layout>
-      <div className="row container product-details">
-        <div className="col-md-6">
-          <img
-            src={`https://the-reading-room-3z29.onrender.com/api/v1/product/product-photo/${product._id}`}
-            className="card-img-top"
-            alt={product.name}
-            height="300"
-            width={"350px"}
-          />
-        </div>
-        <div className="col-md-6 product-details-info">
-          <h1 className="text-center">Product Details</h1>
-          <hr />
-          <h6>Name : {product.name}</h6>
-          <h6>Description : {product.description}</h6>
-          <h6>
-            Price :
-            {product?.price?.toLocaleString("en-US", {
-              style: "currency",
-              currency: "USD",
-            })}
-          </h6>
-          <h6>Category : {product?.category?.name}</h6>
-          <button class="btn btn-secondary ms-1">ADD TO CART</button>
-        </div>
-      </div>
-      <hr />
-      <div className="row container similar-products">
-        <h4>Similar Products ➡️</h4>
-        {relatedProducts.length < 1 && (
-          <p className="text-center">No Similar Products found</p>
-        )}
-        <div className="d-flex flex-wrap">
-          {relatedProducts?.map((p) => (
-            <div className="card m-2" key={p._id}>
-              <img
-                src={`https://the-reading-room-3z29.onrender.com/api/v1/product/product-photo/${p._id}`}
-                className="card-img-top"
-                alt={p.name}
-              />
-              <div className="card-body">
-                <div className="card-name-price">
-                  <h5 className="card-title">{p.name}</h5>
-                  <h5 className="card-title card-price">
-                    {p.price.toLocaleString("en-US", {
+    <Layout title={product?.name}>
+      {/* PAGE BG */}
+      <div
+        className="container-fluid py-4"
+        style={{ backgroundColor: "#F1F5F9" }}
+      >
+        <div className="container">
+          {/* PRODUCT DETAILS */}
+          <div className="card border-0 shadow-sm mb-5">
+            <div className="card-body p-4">
+              <div className="row align-items-center g-4">
+                {/* IMAGE */}
+                <div className="col-md-6 text-center">
+                  <img
+                    src={`http://localhost:4900/api/v1/product/product-photo/${product._id}`}
+                    alt={product.name}
+                    className="img-fluid rounded"
+                    style={{ maxHeight: "350px" }}
+                  />
+                </div>
+
+                {/* INFO */}
+                <div className="col-md-6">
+                  <h3 className="fw-bold mb-2" style={{ color: "#0F172A" }}>
+                    {product.name}
+                  </h3>
+
+                  <p style={{ color: "#64748B" }}>{product.description}</p>
+
+                  <h4 className="fw-bold mb-3" style={{ color: "#1E40AF" }}>
+                    {product?.price?.toLocaleString("en-US", {
                       style: "currency",
                       currency: "USD",
                     })}
-                  </h5>
-                </div>
-                <p className="card-text ">
-                  {p.description.substring(0, 60)}...
-                </p>
-                <div className="card-name-price">
+                  </h4>
+
+                  <p className="mb-3">
+                    <span className="text-muted">Category:</span>{" "}
+                    <strong>{product?.category?.name}</strong>
+                  </p>
+
+                  {/* ADD TO CART (FUNCTIONAL ONLY) */}
                   <button
-                    className="btn btn-info ms-1"
-                    onClick={() => navigate(`/product/${p.slug}`)}
+                    className="btn text-white px-4"
+                    style={{ backgroundColor: "#1E40AF" }}
+                    onClick={() => {
+                      const exists = cart.some((c) => c._id === product._id);
+
+                      if (exists) {
+                        toast("Already in cart");
+                        return;
+                      }
+
+                      const updatedCart = [...cart, product];
+                      setCart(updatedCart);
+                      localStorage.setItem("cart", JSON.stringify(updatedCart));
+                      toast.success("Added to cart");
+                    }}
                   >
-                    More Details
+                    Add to Cart
                   </button>
-                  {/* <button
-                  className="btn btn-dark ms-1"
-                  onClick={() => {
-                    setCart([...cart, p]);
-                    localStorage.setItem(
-                      "cart",
-                      JSON.stringify([...cart, p])
-                    );
-                    toast.success("Item Added to cart");
-                  }}
-                >
-                  ADD TO CART
-                </button> */}
                 </div>
               </div>
             </div>
-          ))}
+          </div>
+
+          {/* RELATED PRODUCTS */}
+          <div className="mb-3">
+            <h4 className="fw-bold mb-3">Related Materials</h4>
+
+            {relatedProducts.length === 0 && (
+              <p className="text-muted">No similar products found.</p>
+            )}
+
+            <div className="row g-4">
+              {relatedProducts.map((p) => (
+                <div className="col-sm-6 col-md-4 col-lg-3" key={p._id}>
+                  <div className="card border-0 shadow-sm h-100">
+                    <img
+                      src={`http://localhost:4900/api/v1/product/product-photo/${p._id}`}
+                      alt={p.name}
+                      className="card-img-top"
+                      style={{
+                        height: "160px",
+                        objectFit: "cover",
+                      }}
+                    />
+
+                    <div className="card-body d-flex flex-column">
+                      <h6 className="fw-semibold mb-1">{p.name}</h6>
+
+                      <p className="small text-muted">
+                        {p.description.substring(0, 60)}...
+                      </p>
+
+                      <p className="fw-bold mb-3" style={{ color: "#1E40AF" }}>
+                        {p.price.toLocaleString("en-US", {
+                          style: "currency",
+                          currency: "USD",
+                        })}
+                      </p>
+
+                      <button
+                        className="btn btn-sm text-white mt-auto"
+                        style={{ backgroundColor: "#1E40AF" }}
+                        onClick={() => navigate(`/product/${p.slug}`)}
+                      >
+                        View Details
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* END */}
         </div>
       </div>
     </Layout>

@@ -7,9 +7,9 @@ import authRoutes from "./routes/authRoute.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import cors from "cors";
-import bodyParser from 'body-parser'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import bodyParser from "body-parser";
+import path from "path";
+import { fileURLToPath } from "url";
 
 //configure env
 dotenv.config();
@@ -18,18 +18,17 @@ dotenv.config();
 connectDB();
 
 //rest object
-const __filename = fileURLToPath(import.meta.url)
+const __filename = fileURLToPath(import.meta.url);
 const app = express();
 
 //middelwares
 app.use(cors());
 // app.use(express.json());
 app.use(morgan("dev"));
-app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 app.use(express.json());
 // app.use(express.bodyParser({ limit: '50mb' }))
-
 
 //routes
 app.use("/api/v1/auth", authRoutes);
@@ -43,17 +42,17 @@ app.get("/", (req, res) => {
 });
 
 const __dirname = path.dirname(__filename);
-app.use(express.static(path.join(__dirname, './client/build')))
+app.use(express.static(path.join(__dirname, "./client/build")));
 app.get("*", function (req, res) {
-  res.sendFile(path.join(__dirname, "./client/build/index.html"))
+  res.sendFile(path.join(__dirname, "./client/build/index.html"));
 });
 //PORT
 const PORT = process.env.PORT || 8080;
 
 //run listen
 app.listen(PORT, () => {
-  // console.log(
-  //   `Server Running on ${process.env.DEV_MODE} mode on port ${PORT}`.bgCyan
-  //     .white
-  // );
+  console.log(
+    `Server Running on ${process.env.DEV_MODE} mode on port ${PORT}`.bgCyan
+      .white
+  );
 });

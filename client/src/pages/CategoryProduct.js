@@ -1,95 +1,104 @@
 import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout/Layout";
 import { useParams, useNavigate } from "react-router-dom";
-import "../styles/CategoryProductStyles.css";
 import axios from "axios";
+
 const CategoryProduct = () => {
   const params = useParams();
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
-  const [category, setCategory] = useState([]);
+  const [category, setCategory] = useState({});
 
   useEffect(() => {
-    if (params?.slug) getPrductsByCat();
+    if (params?.slug) getProductsByCategory();
   }, [params?.slug]);
-  const getPrductsByCat = async () => {
+
+  const getProductsByCategory = async () => {
     try {
       const { data } = await axios.get(
-        `https://the-reading-room-3z29.onrender.com/api/v1/product/product-category/${params.slug}`
+        `http://localhost:4900/api/v1/product/product-category/${params.slug}`
       );
-      setProducts(data?.products);
-      setCategory(data?.category);
+      setProducts(data?.products || []);
+      setCategory(data?.category || {});
     } catch (error) {
       console.log(error);
     }
   };
 
   return (
-    <Layout>
-      <div className="container mt-3 category">
-        <h4 className="text-center">Category - {category?.name}</h4>
-        <h6 className="text-center">{products?.length} result found </h6>
-        <div className="row">
-          <div className="col-md-9 offset-1">
-            <div className="d-flex flex-wrap">
-              {products?.map((p) => (
-                <div className="card m-2" key={p._id}>
+    <Layout title={`Category - ${category?.name || ""}`}>
+      {/* PAGE BG */}
+      <div
+        className="container-fluid py-4"
+        style={{ backgroundColor: "#F1F5F9", minHeight: "100vh" }}
+      >
+        <div className="container">
+          {/* HEADER */}
+          <div className="text-center mb-4">
+            <h3 className="fw-bold" style={{ color: "#0F172A" }}>
+              {category?.name}
+            </h3>
+            <p style={{ color: "#64748B" }}>
+              {products.length} result(s) found
+            </p>
+          </div>
+
+          {/* PRODUCTS GRID */}
+          <div className="row g-4">
+            {products.map((p) => (
+              <div className="col-sm-6 col-md-4 col-lg-3" key={p._id}>
+                <div className="card border-0 shadow-sm h-100">
+                  {/* IMAGE */}
                   <img
-                    src={`https://the-reading-room-3z29.onrender.com/api/v1/product/product-photo/${p._id}`}
-                    className="card-img-top"
+                    src={`http://localhost:4900/api/v1/product/product-photo/${p._id}`}
                     alt={p.name}
-                  />
-                  <div className="card-body">
-                    <div className="card-name-price">
-                      <h5 className="card-title">{p.name}</h5>
-                      <h5 className="card-title card-price">
-                        {p.price.toLocaleString("en-US", {
-                          style: "currency",
-                          currency: "USD",
-                        })}
-                      </h5>
-                    </div>
-                    <p className="card-text ">
-                      {p.description.substring(0, 60)}...
-                    </p>
-                    <div className="card-name-price">
-                      <button
-                        className="btn btn-info ms-1"
-                        onClick={() => navigate(`/product/${p.slug}`)}
-                      >
-                        More Details
-                      </button>
-                      {/* <button
-                    className="btn btn-dark ms-1"
-                    onClick={() => {
-                      setCart([...cart, p]);
-                      localStorage.setItem(
-                        "cart",
-                        JSON.stringify([...cart, p])
-                      );
-                      toast.success("Item Added to cart");
+                    className="card-img-top"
+                    style={{
+                      height: "180px",
+                      objectFit: "cover",
                     }}
-                  >
-                    ADD TO CART
-                  </button> */}
-                    </div>
+                  />
+
+                  {/* BODY */}
+                  <div className="card-body d-flex flex-column">
+                    <h6
+                      className="fw-semibold mb-1"
+                      style={{ color: "#0F172A" }}
+                    >
+                      {p.name}
+                    </h6>
+
+                    <p className="small mb-2" style={{ color: "#64748B" }}>
+                      {p.description?.substring(0, 60)}...
+                    </p>
+
+                    <p className="fw-bold mb-3" style={{ color: "#1E40AF" }}>
+                      {p.price.toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                      })}
+                    </p>
+
+                    <button
+                      className="btn btn-sm text-white mt-auto"
+                      style={{ backgroundColor: "#1E40AF" }}
+                      onClick={() => navigate(`/product/${p.slug}`)}
+                    >
+                      View Details
+                    </button>
                   </div>
                 </div>
-              ))}
-            </div>
-            {/* <div className="m-2 p-3">
-            {products && products.length < total && (
-              <button
-                className="btn btn-warning"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setPage(page + 1);
-                }}
-              >
-                {loading ? "Loading ..." : "Loadmore"}
-              </button>
+              </div>
+            ))}
+
+            {/* EMPTY STATE */}
+            {products.length === 0 && (
+              <div className="col-12 text-center">
+                <p style={{ color: "#64748B" }}>
+                  No products available in this category.
+                </p>
+              </div>
             )}
-          </div> */}
           </div>
         </div>
       </div>

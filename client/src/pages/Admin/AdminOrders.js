@@ -1,31 +1,30 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import toast from "react-hot-toast";
 import AdminMenu from "../../components/Layout/AdminMenu";
 import Layout from "../../components/Layout/Layout";
 import { useAuth } from "../../context/auth";
 import moment from "moment";
 import { Select } from "antd";
+
 const { Option } = Select;
 
 const AdminOrders = () => {
-  const [status, setStatus] = useState([
+  const [status] = useState([
     "Not Process",
     "Processing",
     "Shipped",
-    "deliverd",
-    "cancel",
+    "Delivered",
+    "Cancel",
   ]);
-  const [changeStatus, setCHangeStatus] = useState("");
+
   const [orders, setOrders] = useState([]);
-  const [auth, setAuth] = useAuth();
+  const [auth] = useAuth();
+
   const getOrders = async () => {
-    try {
-      const { data } = await axios.get("https://the-reading-room-3z29.onrender.com/api/v1/auth/all-orders");
-      setOrders(data);
-    } catch (error) {
-      console.log(error);
-    }
+    const { data } = await axios.get(
+      "http://localhost:4900/api/v1/auth/all-orders"
+    );
+    setOrders(data);
   };
 
   useEffect(() => {
@@ -33,83 +32,112 @@ const AdminOrders = () => {
   }, [auth?.token]);
 
   const handleChange = async (orderId, value) => {
-    try {
-      const { data } = await axios.put(`https://the-reading-room-3z29.onrender.com/api/v1/auth/order-status/${orderId}`, {
-        status: value,
-      });
-      getOrders();
-    } catch (error) {
-      console.log(error);
-    }
+    await axios.put(
+      `http://localhost:4900/api/v1/auth/order-status/${orderId}`,
+      { status: value }
+    );
+    getOrders();
   };
+
   return (
-    <Layout title={"All Orders Data"}>
-      <div className="row dashboard">
-        <div className="col-md-3">
-          <AdminMenu />
-        </div>
-        <div className="col-md-9">
-          <h1 className="text-center">All Orders</h1>
-          {orders?.map((o, i) => {
-            return (
-              <div className="border shadow">
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th scope="col">#</th>
-                      <th scope="col">Status</th>
-                      <th scope="col">Buyer</th>
-                      <th scope="col"> date</th>
-                      <th scope="col">Payment</th>
-                      <th scope="col">Quantity</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>{i + 1}</td>
-                      <td>
-                        <Select
-                          bordered={false}
-                          onChange={(value) => handleChange(o._id, value)}
-                          defaultValue={o?.status}
-                        >
-                          {status.map((s, i) => (
-                            <Option key={i} value={s}>
-                              {s}
-                            </Option>
-                          ))}
-                        </Select>
-                      </td>
-                      <td>{o?.buyer?.name}</td>
-                      <td>{moment(o?.createAt).fromNow()}</td>
-                      <td>{o?.payment.success ? "Success" : "Failed"}</td>
-                      <td>{o?.products?.length}</td>
-                    </tr>
-                  </tbody>
-                </table>
-                <div className="container">
-                  {o?.products?.map((p, i) => (
-                    <div className="row mb-2 p-3 card flex-row" key={p._id}>
-                      <div className="col-md-4">
-                        <img
-                          src={`https://the-reading-room-3z29.onrender.com/api/v1/product/product-photo/${p._id}`}
-                          className="card-img-top"
-                          alt={p.name}
-                          width="100px"
-                          height={"100px"}
-                        />
-                      </div>
-                      <div className="col-md-8">
-                        <p>{p.name}</p>
-                        <p>{p.description.substring(0, 30)}</p>
-                        <p>Price : {p.price}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+    <Layout title="All Orders - Admin">
+      <div className="container-fluid py-5">
+        <div className="container">
+          <div className="row">
+            {/* Sidebar */}
+            <div className="col-md-3 mb-4">
+              <div className="bg-white rounded-4 shadow-lg p-3">
+                <AdminMenu />
               </div>
-            );
-          })}
+            </div>
+
+            {/* Content */}
+            <div className="col-md-9">
+              <div className="bg-white rounded-4 shadow-lg p-4">
+                <h3 className="fw-bold mb-4 text-center text-primary">
+                  All Orders
+                </h3>
+
+                {orders.map((o, i) => (
+                  <div key={o._id} className="border rounded-3 p-3 mb-4">
+                    {/* Order Table */}
+                    <div className="table-responsive">
+                      <table className="table table-bordered align-middle mb-3">
+                        <thead className="table-light">
+                          <tr>
+                            <th>#</th>
+                            <th>Status</th>
+                            <th>Buyer</th>
+                            <th>Date</th>
+                            <th>Payment</th>
+                            <th>Qty</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>{i + 1}</td>
+                            <td>
+                              <Select
+                                className="w-100"
+                                value={o.status}
+                                onChange={(value) => handleChange(o._id, value)}
+                              >
+                                {status.map((s, idx) => (
+                                  <Option key={idx} value={s}>
+                                    {s}
+                                  </Option>
+                                ))}
+                              </Select>
+                            </td>
+                            <td>{o?.buyer?.name}</td>
+                            <td>{moment(o?.createAt).fromNow()}</td>
+                            <td>
+                              <span
+                                className={`badge ${
+                                  o?.payment?.success
+                                    ? "bg-success"
+                                    : "bg-danger"
+                                }`}
+                              >
+                                {o?.payment?.success ? "Success" : "Failed"}
+                              </span>
+                            </td>
+                            <td>{o?.products?.length}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Products */}
+                    <div className="row g-3">
+                      {o.products.map((p) => (
+                        <div key={p._id} className="col-md-6 col-lg-4">
+                          <div className="card h-100 shadow-sm">
+                            <img
+                              src={`http://localhost:4900/api/v1/product/product-photo/${p._id}`}
+                              className="card-img-top"
+                              alt={p.name}
+                              style={{
+                                height: "140px",
+                                objectFit: "cover",
+                              }}
+                            />
+                            <div className="card-body">
+                              <h6 className="fw-semibold">{p.name}</h6>
+                              <p className="small text-muted">
+                                {p.description.substring(0, 40)}
+                              </p>
+                              <p className="fw-bold mb-0">${p.price}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </Layout>

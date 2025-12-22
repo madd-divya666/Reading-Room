@@ -25,7 +25,7 @@ const UpdateProduct = () => {
   const getSingleProduct = async () => {
     try {
       const { data } = await axios.get(
-        `https://the-reading-room-3z29.onrender.com/api/v1/product/get-product/${params.slug}`
+        `http://localhost:4900/api/v1/product/get-product/${params.slug}`
       );
       setName(data.product.name);
       setId(data.product._id);
@@ -44,7 +44,9 @@ const UpdateProduct = () => {
   //get all category
   const getAllCategory = async () => {
     try {
-      const { data } = await axios.get("https://the-reading-room-3z29.onrender.com/api/v1/category/get-category");
+      const { data } = await axios.get(
+        "http://localhost:4900/api/v1/category/get-category"
+      );
       if (data?.success) {
         setCategories(data?.category);
       }
@@ -71,7 +73,7 @@ const UpdateProduct = () => {
       content2 && productData.append("content2", content2);
       productData.append("category", category);
       const { data } = axios.put(
-        `https://the-reading-room-3z29.onrender.com/api/v1/product/update-product/${id}`,
+        `http://localhost:4900/api/v1/product/update-product/${id}`,
         productData
       );
       if (data?.success) {
@@ -92,7 +94,7 @@ const UpdateProduct = () => {
       let answer = window.prompt("Are You Sure want to delete this product ? ");
       if (!answer) return;
       const { data } = await axios.delete(
-        `https://the-reading-room-3z29.onrender.com/api/v1/product/delete-product/${id}`
+        `http://localhost:4900/api/v1/product/delete-product/${id}`
       );
       toast.success("Product DEleted Succfully");
       navigate("/dashboard/admin/products");
@@ -153,7 +155,7 @@ const UpdateProduct = () => {
                 ) : (
                   <div className="text-center">
                     <img
-                      src={`https://the-reading-room-3z29.onrender.com/api/v1/product/product-photo/${id}`}
+                      src={`http://localhost:4900/api/v1/product/product-photo/${id}`}
                       alt="product_photo"
                       height={"200px"}
                       className="img img-responsive"
@@ -203,7 +205,6 @@ const UpdateProduct = () => {
                   onChange={(e) => setPrice(e.target.value)}
                 />
               </div>
-
 
               <div className="mb-3">
                 <button className="btn btn-primary" onClick={handleUpdate}>

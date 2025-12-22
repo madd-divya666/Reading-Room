@@ -7,7 +7,9 @@ export default function useCategory() {
   //get cat
   const getCategories = async () => {
     try {
-      const { data } = await axios.get("https://the-reading-room-3z29.onrender.com/api/v1/category/get-category");
+      const { data } = await axios.get(
+        "http://localhost:4900/api/v1/category/get-category"
+      );
       setCategories(data?.category);
     } catch (error) {
       console.log(error);
