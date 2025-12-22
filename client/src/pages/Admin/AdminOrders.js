@@ -21,9 +21,7 @@ const AdminOrders = () => {
   const [auth] = useAuth();
 
   const getOrders = async () => {
-    const { data } = await axios.get(
-      "http://localhost:4900/api/v1/auth/all-orders"
-    );
+    const { data } = await axios.get("/api/v1/auth/all-orders");
     setOrders(data);
   };
 
@@ -32,10 +30,7 @@ const AdminOrders = () => {
   }, [auth?.token]);
 
   const handleChange = async (orderId, value) => {
-    await axios.put(
-      `http://localhost:4900/api/v1/auth/order-status/${orderId}`,
-      { status: value }
-    );
+    await axios.put(`/api/v1/auth/order-status/${orderId}`, { status: value });
     getOrders();
   };
 
@@ -114,7 +109,7 @@ const AdminOrders = () => {
                         <div key={p._id} className="col-md-6 col-lg-4">
                           <div className="card h-100 shadow-sm">
                             <img
-                              src={`http://localhost:4900/api/v1/product/product-photo/${p._id}`}
+                              src={`/api/v1/product/product-photo/${p._id}`}
                               className="card-img-top"
                               alt={p.name}
                               style={{

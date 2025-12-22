@@ -22,9 +22,7 @@ const CreateProduct = () => {
   // GET CATEGORIES (UNCHANGED)
   const getAllCategory = async () => {
     try {
-      const { data } = await axios.get(
-        "http://localhost:4900/api/v1/category/get-category"
-      );
+      const { data } = await axios.get("/api/v1/category/get-category");
       if (data?.success) setCategories(data.category);
     } catch (error) {
       toast.error("Failed to load categories");
@@ -49,7 +47,7 @@ const CreateProduct = () => {
       productData.append("content2", content2);
 
       const { data } = await axios.post(
-        "http://localhost:4900/api/v1/product/create-product",
+        "/api/v1/product/create-product",
         productData
       );
 

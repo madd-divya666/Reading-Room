@@ -28,24 +28,18 @@ const HomePage = () => {
   /* ================= API ================= */
 
   const getAllCategory = async () => {
-    const { data } = await axios.get(
-      "http://localhost:4900/api/v1/category/get-category"
-    );
+    const { data } = await axios.get("/api/v1/category/get-category");
     if (data?.success) setCategories(data.category);
   };
 
   const getTotal = async () => {
-    const { data } = await axios.get(
-      "http://localhost:4900/api/v1/product/product-count"
-    );
+    const { data } = await axios.get("/api/v1/product/product-count");
     setTotal(data?.total);
   };
 
   const getAllProducts = async () => {
     setLoading(true);
-    const { data } = await axios.get(
-      `http://localhost:4900/api/v1/product/product-list/${page}`
-    );
+    const { data } = await axios.get(`/api/v1/product/product-list/${page}`);
     setProducts(data.products);
     setLoading(false);
   };
@@ -65,9 +59,7 @@ const HomePage = () => {
 
   const loadMore = async () => {
     setLoading(true);
-    const { data } = await axios.get(
-      `http://localhost:4900/api/v1/product/product-list/${page}`
-    );
+    const { data } = await axios.get(`/api/v1/product/product-list/${page}`);
     setProducts([...products, ...data.products]);
     setLoading(false);
   };
@@ -89,10 +81,10 @@ const HomePage = () => {
   }, [checked, radio]);
 
   const filterProduct = async () => {
-    const { data } = await axios.post(
-      "http://localhost:4900/api/v1/product/product-filters",
-      { checked, radio }
-    );
+    const { data } = await axios.post("/api/v1/product/product-filters", {
+      checked,
+      radio,
+    });
     setProducts(data.products);
   };
 
@@ -201,7 +193,7 @@ const HomePage = () => {
                             }}
                           >
                             <img
-                              src={`http://localhost:4900/api/v1/product/product-photo/${p._id}`}
+                              src={`/api/v1/product/product-photo/${p._id}`}
                               className="card-img-top rounded-top-4"
                               alt={p.name}
                               style={{

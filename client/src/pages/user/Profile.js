@@ -25,10 +25,13 @@ const Profile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.put(
-        "http://localhost:4900/api/v1/auth/profile",
-        { name, email, password, phone, address }
-      );
+      const { data } = await axios.put("/api/v1/auth/profile", {
+        name,
+        email,
+        password,
+        phone,
+        address,
+      });
 
       if (data?.error) {
         toast.error(data.error);

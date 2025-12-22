@@ -9,9 +9,7 @@ const Courses = () => {
 
   const getOrders = async () => {
     try {
-      const { data } = await axios.get(
-        "http://localhost:4900/api/v1/auth/orders"
-      );
+      const { data } = await axios.get("/api/v1/auth/orders");
       setOrders(data);
     } catch (error) {
       console.log(error);
@@ -75,13 +73,13 @@ const Courses = () => {
 
                         <div className="ratio ratio-16x9 mb-3">
                           <embed
-                            src={`http://localhost:4900/api/v1/product/product-content2/${p._id}`}
+                            src={`/api/v1/product/product-content2/${p._id}`}
                             type="application/pdf"
                           />
                         </div>
 
                         <a
-                          href={`http://localhost:4900/api/v1/product/product-content2/${p._id}`}
+                          href={`/api/v1/product/product-content2/${p._id}`}
                           target="_blank"
                           rel="noreferrer"
                           className="btn btn-sm text-white"
@@ -102,7 +100,7 @@ const Courses = () => {
 
                         <div className="ratio ratio-1x1 border">
                           <embed
-                            src={`http://localhost:4900/api/v1/product/product-content1/${p._id}`}
+                            src={`/api/v1/product/product-content1/${p._id}`}
                             type="application/pdf"
                           />
                         </div>

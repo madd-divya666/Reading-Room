@@ -10,9 +10,7 @@ const Orders = () => {
 
   const getOrders = async () => {
     try {
-      const { data } = await axios.get(
-        "http://localhost:4900/api/v1/auth/orders"
-      );
+      const { data } = await axios.get("/api/v1/auth/orders");
       setOrders(data);
     } catch (error) {
       console.log(error);
@@ -77,13 +75,13 @@ const Orders = () => {
                           <div className="col-md-7">
                             <div className="ratio ratio-16x9 border rounded">
                               <embed
-                                src={`http://localhost:4900/api/v1/product/product-content1/${p._id}`}
+                                src={`/api/v1/product/product-content1/${p._id}`}
                                 type="application/pdf"
                               />
                             </div>
 
                             <a
-                              href={`http://localhost:4900/api/v1/product/product-content1/${p._id}`}
+                              href={`/api/v1/product/product-content1/${p._id}`}
                               target="_blank"
                               rel="noreferrer"
                               className="btn btn-sm mt-3 text-white"

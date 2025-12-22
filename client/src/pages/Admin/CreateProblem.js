@@ -24,7 +24,7 @@ const CreateProblem = () => {
       productData.append("options", options);
 
       const { data } = await axios.post(
-        "http://localhost:4900/api/v1/product/create-problem",
+        "/api/v1/product/create-problem",
         productData
       );
 

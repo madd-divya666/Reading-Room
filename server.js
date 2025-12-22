@@ -2,57 +2,57 @@ import express from "express";
 import colors from "colors";
 import dotenv from "dotenv";
 import morgan from "morgan";
+import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// DB & routes
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoute.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
-import cors from "cors";
-import bodyParser from "body-parser";
-import path from "path";
-import { fileURLToPath } from "url";
 
-//configure env
+// ================= CONFIG =================
 dotenv.config();
-
-//databse config
 connectDB();
 
-//rest object
-const __filename = fileURLToPath(import.meta.url);
 const app = express();
 
-//middelwares
-app.use(cors());
-// app.use(express.json());
-app.use(morgan("dev"));
-app.use(bodyParser.json({ limit: "50mb" }));
-app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
-app.use(express.json());
-// app.use(express.bodyParser({ limit: '50mb' }))
+// ES module fix for __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-//routes
+// ================= MIDDLEWARE =================
+app.use(cors());
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+app.use(morgan("dev"));
+
+// ================= ROUTES =================
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/category", categoryRoutes);
 app.use("/api/v1/product", productRoutes);
 
-//rest api
-app.get("/", (req, res) => {
-  res.setHeader("Access-Control-Allow-Credential", "true");
-  res.send("<h1>Welcome to ecommerce app</h1>");
-});
+// ================= PRODUCTION (REACT BUILD) =================
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "client/build")));
 
-const __dirname = path.dirname(__filename);
-app.use(express.static(path.join(__dirname, "./client/build")));
-app.get("*", function (req, res) {
-  res.sendFile(path.join(__dirname, "./client/build/index.html"));
-});
-//PORT
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "client/build", "index.html"));
+  });
+} else {
+  app.get("/", (req, res) => {
+    res.send("<h1>API running successfully 🚀</h1>");
+  });
+}
+
+// ================= PORT =================
 const PORT = process.env.PORT || 8080;
 
-//run listen
+// ================= START SERVER =================
 app.listen(PORT, () => {
   console.log(
-    `Server Running on ${process.env.DEV_MODE} mode on port ${PORT}`.bgCyan
+    `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`.bgCyan
       .white
   );
 });

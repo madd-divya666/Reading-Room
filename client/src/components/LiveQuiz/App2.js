@@ -23,9 +23,7 @@ function App2() {
   // Fetch Questions
   const getAllProblem = async () => {
     try {
-      const { data } = await axios.get(
-        "http://localhost:4900/api/v1/product/get-problem"
-      );
+      const { data } = await axios.get("/api/v1/product/get-problem");
       setQuizs(data.problem);
     } catch (error) {
       console.error(error);

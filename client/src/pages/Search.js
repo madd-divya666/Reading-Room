@@ -33,7 +33,7 @@ const Search = () => {
               <div className="col-sm-6 col-md-4 col-lg-3" key={p._id}>
                 <div className="card border-0 shadow-sm h-100">
                   <img
-                    src={`http://localhost:4900/api/v1/product/product-photo/${p._id}`}
+                    src={`/api/v1/product/product-photo/${p._id}`}
                     alt={p.name}
                     className="card-img-top"
                     style={{

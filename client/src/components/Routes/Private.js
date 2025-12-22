@@ -11,9 +11,7 @@ const PrivateRoute = () => {
   useEffect(() => {
     const authCheck = async () => {
       try {
-        const { data } = await axios.get(
-          "http://localhost:4900/api/v1/auth/user-auth"
-        );
+        const { data } = await axios.get("/api/v1/auth/user-auth");
 
         if (data?.ok) {
           setOk(true);
