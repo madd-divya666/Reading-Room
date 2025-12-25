@@ -8,4 +8,4 @@ using BrainTree, MongoDB for database.
 ## Additional features
 includes Quiz Portal, Pagination, Search Functionality, Filter by Category, Seprate dashboard
 for Admin and Students, Wishlist Functionality, Payment Functionality.
-## Live https://trr-xaxc.onrender.com/
+## Live https://reading-room-syiu.onrender.com/
