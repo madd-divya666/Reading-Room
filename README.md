@@ -6,6 +6,6 @@ React and Bootstrap for the frontend, Node and Express for Backend, Hooks and Co
 API for React State Management, Authentication using Json web Token(JWT), Payment Gateway intergration
 using BrainTree, MongoDB for database.
 ## Additional features
-includes Quiz Portal, Pagination, Search Functionality, Filter by Category, Seprate dashboard
+Includes Quiz Portal, Pagination, Search Functionality, Filter by Category, Seprate dashboard
 for Admin and Students, Wishlist Functionality, Payment Functionality.
 ## Live https://reading-room-syiu.onrender.com/
